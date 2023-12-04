@@ -1,0 +1,38 @@
+{
+  "name": "next-predict",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@mantine/core": "^7.3.0",
+    "@mantine/form": "^7.3.0",
+    "@mantine/hooks": "^7.3.0",
+    "@tabler/icons-react": "^2.42.0",
+    "@tensorflow/tfjs": "^4.14.0",
+    "file-type": "^18.7.0",
+    "formidable": "^3.5.1",
+    "jpeg-js": "^0.4.4",
+    "next": "14.0.3",
+    "next-progress": "^2.3.1",
+    "png.js": "^0.2.1",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-hot-toast": "^2.4.1"
+  },
+  "devDependencies": {
+    "@types/formidable": "^3.4.5",
+    "@types/node": "^20",
+    "@types/png.js": "^0.2.3",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "postcss": "^8.4.32",
+    "postcss-preset-mantine": "^1.11.1",
+    "postcss-simple-vars": "^7.0.1",
+    "typescript": "^5"
+  }
+}
