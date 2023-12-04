@@ -79,7 +79,7 @@ function UploadFormComp() {
                         placeholder="hello.png"
                         label="Png file"
                         withAsterisk
-                        accept="image/png"
+                        accept="image/png, image/jpg, image/jpeg"
                         leftSection={<IconUpload size={12} />}
                         {...form.getInputProps('file')}
                     />

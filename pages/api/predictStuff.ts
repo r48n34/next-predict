@@ -1,7 +1,7 @@
 import { formService } from '@/services/formService';
 import type { NextApiRequest, NextApiResponse } from 'next'
 import fs from "fs";
-import FileType from "file-type"
+import { fileTypeFromBuffer } from 'file-type';
 
 import * as tf from '@tensorflow/tfjs';
 import { decodeImages } from "../../utilis/imgDecodeUtilis"
@@ -38,14 +38,13 @@ export default async function handler(
             throw new Error("Missing input files")
         }
         
-        const png_in_path     = (files.file as any).filepath
-
-        // const png_in_path_type = await FileType.fromFile(png_in_path)
-        // if(png_in_path_type?.ext !== "png"){
-        //     throw new Error("Invalid file type")
-        // }
+        const png_in_path = (files.file as any).filepath
 
         const imageBuffer = fs.readFileSync(png_in_path)
+        const png_in_path_type = await fileTypeFromBuffer(imageBuffer)
+        if(["png", "jpg", "jpeg"].indexOf(png_in_path_type!.ext) <= -1){
+            throw new Error("Invalid file type")
+        }
     
         !isModalLoaded && ( await loadModelfunc() );
 
