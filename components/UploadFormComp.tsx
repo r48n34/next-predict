@@ -1,5 +1,5 @@
 import * as tf from '@tensorflow/tfjs';
-import { Button, Group, Box, FileInput, Text, Grid, Loader } from '@mantine/core';
+import { Button, Group, Box, FileInput, Text, Grid, Loader, Progress } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useEffect, useState } from 'react';
 import { IconUpload, IconFileUpload } from '@tabler/icons-react';
@@ -74,6 +74,7 @@ function UploadFormComp() {
 
     return (
         <>
+        {loadingProgress <= 99 && <Progress value={loadingProgress} />}
         <Text ta={"center"} fz={34} fw={300} mb={32} mt={4}> Predict stuff </Text>
         <Text ta={"center"} fz={14} fw={300} mt={-34} c='dimmed'> Predict stuff in nextjs runtime </Text>
 

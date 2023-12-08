@@ -12,10 +12,10 @@ async function createModel(
     
     const mod = method === "LayersModel" 
     ? await tf.loadLayersModel(url,{
-        onProgress: (e) => callBackProgress(e) 
+        onProgress: (e) => callBackProgress(Math.floor(e * 100)) 
     }) 
     : await tf.loadGraphModel(url, {
-        onProgress: (e) => callBackProgress(e) 
+        onProgress: (e) => callBackProgress(Math.floor(e * 100)) 
     });
 
     return mod
