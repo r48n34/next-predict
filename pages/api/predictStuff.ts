@@ -5,7 +5,7 @@ import { fileTypeFromBuffer } from 'file-type';
 
 import * as tf from '@tensorflow/tfjs';
 import { decodeImages } from "../../utilis/imgDecodeUtilis"
-import modelData  from "../../useData/modelData.json"
+import { modelData } from "../../useData/modelData"
 
 let myModel: tf.GraphModel<string | tf.io.IOHandler>;
 let isModalLoaded: boolean = false;
@@ -59,7 +59,7 @@ export default async function handler(
         const predictArr = await (myModel.predict(adjustedTensor) as tf.Tensor).data();
 
         const k = 5;
-        // tfjs default value
+
         const {values, indices} = tf.topk(predictArr, k);  
 
         const topKArrPoss = Array.from( values.dataSync() )
@@ -77,7 +77,6 @@ export default async function handler(
 
         obj = {
             ...obj,
-            status: true,
             rankList: topKArrFinal,
             timeTaken: (nowTime - start) / 1000 + " secs",
             timeTakenOffset: ""
