@@ -1,5 +1,5 @@
 import * as tf from '@tensorflow/tfjs';
-import { Button, Group, Box, FileInput, Text, Grid, Loader, Progress } from '@mantine/core';
+import { Button, Group, Box, FileInput, Text, Grid, Progress } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useEffect, useState } from 'react';
 import { IconUpload, IconFileUpload } from '@tabler/icons-react';
@@ -29,7 +29,7 @@ function UploadFormComp() {
             file: (value) => (
                 !value 
                 ? 'Missing png file'
-                : value.size / 1024 / 1024 >= 12 // in MiB 
+                : value.size / 1024 / 1024 >= 18 // in MiB 
                 ? 'png file too big'
                 : null
             ),
@@ -38,14 +38,12 @@ function UploadFormComp() {
 
     useEffect(() => {
         ( async () => {
-
-            let mod = await createModel("/models/model.json", "GraphModel", setLoadingProgress);
-            setMyModel(mod as tf.GraphModel<string | tf.io.IOHandler>);
-
+            const localModel = await createModel("/models/model.json", "GraphModel", setLoadingProgress);
+            setMyModel(localModel as tf.GraphModel<string | tf.io.IOHandler>);
         })()
     }, []);
 
-    async function uploadform(values: FormObject) {
+    async function uploadform(_: FormObject) {
 
         try {
             setIsLoading(true);
@@ -59,7 +57,7 @@ function UploadFormComp() {
                 modelData.labels
             );
 
-            console.log(res)
+            // console.log(res)
             setReturnData(JSON.stringify(res, null, 4))
 
         } 
@@ -74,15 +72,17 @@ function UploadFormComp() {
 
     return (
         <>
-        {loadingProgress <= 99 && <Progress value={loadingProgress} />}
+        {loadingProgress <= 99 && <>
+            <Progress.Root size="xl" mt={12}>
+                <Progress.Section value={loadingProgress} animated>
+                    <Progress.Label>{ loadingProgress }%</Progress.Label>
+                </Progress.Section>
+            </Progress.Root>
+        </>
+        }
+
         <Text ta={"center"} fz={34} fw={300} mb={32} mt={4}> Predict stuff </Text>
         <Text ta={"center"} fz={14} fw={300} mt={-34} c='dimmed'> Predict stuff in nextjs runtime </Text>
-
-        { myModel === null &&
-            <Group justify='center'>
-                <Loader color="blue" />
-            </Group>
-        }
 
         <Grid gutter="xl" mt={12}>
             <Grid.Col span={{ md: 7 }}>
