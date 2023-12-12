@@ -6,8 +6,9 @@ import { IconUpload, IconFileUpload } from '@tabler/icons-react';
 
 import toast from 'react-hot-toast';
 import DisplayCard from './DisplayCard';
-import { createModel, predictResultTopFive } from '@/utilis/predictUtili';
+import { createModel, predictResultTopN } from '@/utilis/predictUtili';
 import { modelData } from '@/useData/modelData';
+import DisplayImageCard from './DisplayImageCard';
 
 interface FormObject {
     file: File | null
@@ -29,7 +30,7 @@ function UploadFormComp() {
             file: (value) => (
                 !value 
                 ? 'Missing png file'
-                : value.size / 1024 / 1024 >= 18 // in MiB 
+                : value.size / 1024 / 1024 >= 100 // in MiB 
                 ? 'png file too big'
                 : null
             ),
@@ -48,7 +49,7 @@ function UploadFormComp() {
         try {
             setIsLoading(true);
 
-            let res = await predictResultTopFive(
+            let res = await predictResultTopN(
                 myModel as tf.GraphModel<string | tf.io.IOHandler>,
                 "img",
                 modelData.offlineInfo.size,
@@ -59,7 +60,6 @@ function UploadFormComp() {
 
             // console.log(res)
             setReturnData(JSON.stringify(res, null, 4))
-
         } 
         catch (error) {
             toast.error("Error. Please try another file", { position: 'top-right' })
@@ -99,27 +99,23 @@ function UploadFormComp() {
                         leftSection={<IconUpload size={12} />}
                         {...form.getInputProps('file')}
                     />
-                     <Text c="dimmed" fz="xs" mt={4}>Should not be bigger than 6MB</Text>
-
-                    { form.values.file 
-                    ? 
-                    <Box>
-                        <Text w={600}>Preview</Text>
-                        <img 
-                            id="img" 
-                            src={URL.createObjectURL(form.values.file)} 
-                            style={{ width:"50%", height:"auto" }} 
-                            alt="pics"
-                        />
-                    </Box>
-                    : <></>
-                    }
+                    <Text c="dimmed" fz="xs" mt={4}>Should not be bigger than 100MB</Text>
 
                     <Group justify="flex-end" mb={16} mt={22}>
-                        <Button leftSection={<IconFileUpload />} variant="light" type="submit" loading={isLoading || myModel === null}>
-                            { isLoading ? "Processing" : "Upload" }
+                        <Button
+                            disabled={!form.values.file}
+                            leftSection={<IconFileUpload />}
+                            variant="light" type="submit" 
+                            loading={isLoading || myModel === null}
+                        >
+                            { isLoading ? "Processing" : "Predict" }
                         </Button>
                     </Group>
+
+                    { form.values.file 
+                        ? <DisplayImageCard src={URL.createObjectURL(form.values.file)}/>
+                        : <></>
+                    }
                     
                 </form>
                 </Box>

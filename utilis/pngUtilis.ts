@@ -1,5 +1,4 @@
 interface PNGImg {
-
     width: number;
     height: number;
     bitDepth: number;
@@ -13,7 +12,6 @@ interface PNGImg {
     palette: any;
     pixels: Buffer;
     trns: any;
-
 };
 
 function getRGBA8Array(png: PNGImg):number[]{

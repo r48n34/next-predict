@@ -32,98 +32,26 @@ function timer(t: number){
     })
 }
 
-async function toindexedDb(model: tf.LayersModel | tf.GraphModel<string | tf.io.IOHandler>, modelName:string): Promise<boolean>{
-    try{
-        const saveResult = await model.save("indexeddb://" + modelName);
-        console.log(saveResult);
-        return true;
-    }
-    catch(e){
-        console.log(e);
-        return false;
-    }
-
-}
-
-async function predictResult(
-    myModel: any, //tf.LayersModel | tf.GraphModel<string | tf.io.IOHandler>
-    imgInputId: string,
-    imgSize: number,
-    subNum: number,
-    divNum: number,
-    labelArr: any[]
-){
-    let obj;
-
-    try{
-
-        const imageRef:any = document.getElementById(imgInputId); // That image elements
-        
-        let waitTime = 1300 // Normal wait time
-        await timer(waitTime);
-    
-        let start = new Date();
-
-        let imgPre = tf.browser.fromPixels(imageRef)
-            .resizeNearestNeighbor([imgSize,imgSize])
-            .toFloat()
-            .div(tf.scalar(divNum))
-            .sub(tf.scalar(subNum))  
-            .expandDims();
-        
-    
-        const p = await myModel.predict(imgPre).data();
-    
-        const labelMyModel = labelArr;
-        let ind = p.indexOf(Math.max(...p));
-    
-        obj = {
-            status: true,
-            object : labelMyModel[ind],
-            confident : (Math.max(...p) * 100).toFixed(2) + "%",
-            timeTaken: (new Date().getTime() - start.getTime()) / 1000 + " secs",
-            timeTakenOffset: (new Date().getTime() - start.getTime() + waitTime) / 1000 + " secs",
-        }
-    
-    }
-    catch(err){
-        obj = {
-          status: false,
-          object : "",
-          confident : 0,
-          timeTaken: 0,
-          timeTakenOffset: 0,
-        }
-    }
-    finally{
-        return obj;
-    }
-
-}
-
 interface RankObj {
     label: string
     confident: number 
 }
 
 export interface PredictedObject {
-    "top1": RankObj,
-    "top2": RankObj,
-    "top3": RankObj,
-    "top4": RankObj,
-    "top5": RankObj,
+    data: RankObj[]
     "status": boolean;
-    "timeTaken": string
-    "timeTakenOffset": string
+    "timeTaken": number
+    "totalTime": number
 }
 
-async function predictResultTopFive(
+async function predictResultTopN(
     myModel: tf.GraphModel<string | tf.io.IOHandler>, // tf.LayersModel | tf.GraphModel<string | tf.io.IOHandler>,
     imgInputId: string,
     imgSize:number,
     subNum:number,
     divNum:number,
-    labelArr:any[]
+    labelArr:any[],
+    n: number = 5
 ): Promise<PredictedObject>{
     let obj = {} as any;
 
@@ -131,57 +59,53 @@ async function predictResultTopFive(
 
         const imageRef = document.getElementById(imgInputId) as HTMLImageElement; // That image elements
         
-        let waitTime = 1300 // Normal wait time
+        let waitTime = 800 // Normal wait time
         await timer(waitTime);
     
         let start = new Date();
     
         let imgPre = tf.browser.fromPixels(imageRef)
-            .resizeNearestNeighbor([imgSize,imgSize])
+            .resizeNearestNeighbor([imgSize, imgSize])
             .toFloat()
             .div(tf.scalar(divNum))
             .sub(tf.scalar(subNum))  
             .expandDims();
         
-        const p = await (myModel.predict(imgPre) as tf.Tensor<tf.Rank>).data();
+        const possibleArray = await (myModel.predict(imgPre) as tf.Tensor<tf.Rank>).data();
 
         // tfjs default value
-        const {values, indices} = tf.topk(p, 5);  
+        const {values, indices} = tf.topk(possibleArray, n);  
 
         const top5ArrPoss:number[] = Array.from( values.dataSync() )
-        const top5Arr:number[] = Array.from( indices.dataSync() )
+        const top5Arr:number[]     = Array.from( indices.dataSync() )
 
-        let topFiveArr:RankObj[] = []
-        for(let op = 0; op < 5; op ++){
-            topFiveArr.push( { label: labelArr[ top5Arr[op] ], confident: top5ArrPoss[op] } )
+        let topNArr:RankObj[] = []
+        for(let op = 0; op < n; op ++){
+            topNArr.push({ 
+                label: labelArr[ top5Arr[op] ],
+                confident: top5ArrPoss[op]
+            })
         }
 
-        topFiveArr.forEach( (v,i) => obj[`top${i + 1}`] = v );
-
         obj = {
-            ...obj,
+            data: topNArr,
             status: true,
-            timeTaken: (new Date().getTime() - start.getTime()) / 1000 + " secs",
-            timeTakenOffset: (new Date().getTime() - start.getTime() + waitTime) / 1000 + " secs",
+            timeTaken: (new Date().getTime() - start.getTime()) / 1000,
+            totalTime: (new Date().getTime() - start.getTime() + waitTime) / 1000,
         }
     
     }
     catch(err){
         obj = {
-            "top1": {},
-            "top2": {},
-            "top3": {},
-            "top4": {},
-            "top5": {},
-            "status": false,
-            "timeTaken": "",
-            "timeTakenOffset": ""
+            data: [],
+            status: false,
+            timeTaken: -1,
+            totalTime: -1
         }
 
         console.log(err);
     }
     finally{
-
         console.log(obj)
         return obj;
     }
@@ -189,4 +113,9 @@ async function predictResultTopFive(
 }
 
 
-export {timer, createModel, createObj, predictResult, predictResultTopFive, toindexedDb}
+export { 
+    timer,
+    createModel,
+    createObj,
+    predictResultTopN,
+}

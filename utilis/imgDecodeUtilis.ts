@@ -94,10 +94,9 @@ async function decodeImages(img: Uint8Array):Promise<tf.Tensor3D>{
     
 }
 
-// async function loadModelfuncLocal(){
-//     const handler = tfNode.io.fileSystem("./models/flower400Code021model/model.json");
-//     myModel = await tf.loadGraphModel(handler);
-//     isModalLoaded = true;
-// }
-
-export { decodeImages, decodeJpeg, getImageType, decodePng }
+export { 
+    decodeImages,
+    decodeJpeg,
+    getImageType,
+    decodePng
+}
