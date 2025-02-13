@@ -2,8 +2,6 @@
 
 A quick demo of using TFJS localy predictions for CNN models.  
 
-Demo: https://next-predict.vercel.app/
-
 ## Features
 1. Load in models in local device run time.  
 2. Predict with user devices (No server predictions)  
